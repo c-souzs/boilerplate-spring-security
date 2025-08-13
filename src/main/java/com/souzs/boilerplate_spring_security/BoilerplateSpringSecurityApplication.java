@@ -9,5 +9,4 @@ public class BoilerplateSpringSecurityApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BoilerplateSpringSecurityApplication.class, args);
 	}
-
 }
