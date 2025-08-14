@@ -3,6 +3,7 @@ package com.souzs.boilerplate_spring_security.security;
 import com.souzs.boilerplate_spring_security.domain.entities.User;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +12,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@ToString
 public class UserDetailsImpl implements UserDetails {
     private User user;
 

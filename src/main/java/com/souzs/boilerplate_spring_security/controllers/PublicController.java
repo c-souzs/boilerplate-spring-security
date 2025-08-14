@@ -11,6 +11,7 @@ public class PublicController {
 
     @GetMapping
     public ResponseEntity<String> publicMessage() {
+        System.out.println("Chamou aqui");
         return ResponseEntity.ok("This resource is public! \uD83D\uDD13");
     }
 }

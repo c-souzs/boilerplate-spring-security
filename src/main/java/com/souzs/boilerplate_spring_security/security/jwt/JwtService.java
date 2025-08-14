@@ -1,9 +1,7 @@
 package com.souzs.boilerplate_spring_security.security.jwt;
 
-import com.nimbusds.jose.JOSEException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
-
-import java.text.ParseException;
 
 public interface JwtService {
     // Gera o token a partir do usuario
@@ -11,4 +9,10 @@ public interface JwtService {
 
     // Verifica se o token esta valido
     boolean isTokenValid(String token);
+
+    // Extrai o token a partir dos cookies
+    String extractTokenFromCookie(HttpServletRequest request);
+
+    // Extrai o email do token
+    String extractClaimFromToken(String token, String claimName);
 }
