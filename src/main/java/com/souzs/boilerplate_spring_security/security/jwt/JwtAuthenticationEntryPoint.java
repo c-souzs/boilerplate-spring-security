@@ -24,7 +24,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         CustomError error = new CustomError(
                 Instant.now(),
                 HttpStatus.FORBIDDEN.value(),
-                authException.getMessage(),
+                "É necessário esta autenticado para acessar esse recurso",
                 request.getRequestURI()
         );
 
