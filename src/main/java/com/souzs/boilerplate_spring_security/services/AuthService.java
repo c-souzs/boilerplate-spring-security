@@ -10,8 +10,9 @@ import com.souzs.boilerplate_spring_security.security.UserDetailsImpl;
 import com.souzs.boilerplate_spring_security.security.jwt.JwtService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Set;
 
@@ -44,41 +47,31 @@ public class AuthService {
     public void signup(HttpServletResponse response, UserRequestDTO dto) {
         User user = new User();
         user.setEmail(dto.getUsername());
-
-        String password = passwordEncoder.encode(dto.getPassword());
-        user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         Role roleBasic = new Role();
         roleBasic.setId(ERole.ROLE_USER.getId());
         roleBasic.setName(ERole.ROLE_USER.name());
         user.setRoles(Set.of(roleBasic));
 
-        user = userRepository.save(user);
+        userRepository.save(user);
+        // Forca o INSERT do usuario antes do commit para que ele esteja disponivel no
+        // momento da autenticacao
+        userRepository.flush();
 
-        UserDetailsImpl userDetails = new UserDetailsImpl(user);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities()
-        );
+        Authentication authentication = authenticationUser(dto);
 
         Cookie cookie = generateTokenAndCookie(authentication);
-
         response.addCookie(cookie);
     }
 
-    @Transactional
+    // @Transactional
+    // Nao e necessario pois o processo do de autenticacaco interno do security
+    // e envolvido em um transaction
     public void signin(HttpServletResponse response, UserRequestDTO dto) {
-        Authentication authentication = null;
-
         try {
-            authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            dto.getUsername(),
-                            dto.getPassword()
-                    )
-            );
-
+            Authentication authentication = authenticationUser(dto);
             Cookie cookie = generateTokenAndCookie(authentication);
-
             response.addCookie(cookie);
         } catch (BadCredentialsException e) {
             throw new UsernameNotFoundException("Usuário ou senha inválidos.");
@@ -96,6 +89,15 @@ public class AuthService {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         return new UserResponseDTO(userDetails.getUser());
+    }
+
+    private Authentication authenticationUser(UserRequestDTO dto) {
+        return authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        dto.getUsername(),
+                        dto.getPassword()
+                )
+        );
     }
 
     private Cookie generateTokenAndCookie(Authentication authentication) {

@@ -4,6 +4,7 @@ import com.souzs.boilerplate_spring_security.security.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -44,10 +45,10 @@ public class SecurityConfig {
                 // Filtros
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 
-
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(toH2Console()).permitAll()
-                        .requestMatchers("/public/**", "/auth/**").permitAll()
+                        .requestMatchers("/public/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/signin", "/auth/signup").permitAll()
                         .anyRequest().authenticated()
                 ).build();
     }
