@@ -1,5 +1,6 @@
 package com.souzs.boilerplate_spring_security.security;
 
+import com.souzs.boilerplate_spring_security.exceptions.EntityException;
 import com.souzs.boilerplate_spring_security.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username)
                 .map(UserDetailsImpl::new)
-                .orElseThrow(() -> new UsernameNotFoundException("Usário não encontrado."));
+                .orElseThrow(() -> new EntityException("Usário não encontrado"));
     }
 }

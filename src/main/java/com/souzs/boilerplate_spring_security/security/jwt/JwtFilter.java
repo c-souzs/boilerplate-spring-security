@@ -1,5 +1,6 @@
 package com.souzs.boilerplate_spring_security.security.jwt;
 
+import com.souzs.boilerplate_spring_security.exceptions.AuthException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,12 +40,10 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = jwtService.extractTokenFromCookie(request);
         boolean validateToken = jwtService.isTokenValid(token);
 
-        if (checkLoggedUser(request.getRequestURI(), token)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Usuário já está logado");
-            return;
-        }
+        if (checkLoggedUser(request.getRequestURI(), token)) throw new AuthException("Usuário já está logado");
 
         try {
+
             if(token != null && validateToken) {
                 String email = jwtService.extractClaimFromToken(token, "sub");
 
@@ -60,8 +59,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (Exception  e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+            throw new AuthException("Erro de autenticação");
         }
 
         filterChain.doFilter(request, response);

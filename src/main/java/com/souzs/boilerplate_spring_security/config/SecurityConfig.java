@@ -1,5 +1,6 @@
 package com.souzs.boilerplate_spring_security.config;
 
+import com.souzs.boilerplate_spring_security.security.jwt.JwtAuthenticationEntryPoint;
 import com.souzs.boilerplate_spring_security.security.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +30,9 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
+    @Autowired
+    private JwtAuthenticationEntryPoint authenticationEntryPoint;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -36,6 +40,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.ignoringRequestMatchers(toH2Console()).disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                )
 
                 .userDetailsService(userDetailsService)
 

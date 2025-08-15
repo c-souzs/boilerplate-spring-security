@@ -6,6 +6,7 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.souzs.boilerplate_spring_security.domain.entities.User;
+import com.souzs.boilerplate_spring_security.exceptions.JwtException;
 import com.souzs.boilerplate_spring_security.security.UserDetailsImpl;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -81,7 +82,7 @@ public class JwtServiceImpl implements JwtService {
             Date expiration = signedJWT.getJWTClaimsSet().getExpirationTime();
             return new Date().before(expiration);
         } catch (ParseException | JOSEException e) {
-            return false;
+            throw new JwtException("Erro ao validar token");
         }
     }
 
